@@ -1,5 +1,25 @@
 # Установка TrustTunnel с автозапуском на Keenetic
 
+## Быстрая установка
+
+Выполните одну команду на роутере:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/artemevsevev/TrustTunnel-Keenetic/main/install.sh | sh
+```
+
+или с wget:
+
+```bash
+wget -qO- https://raw.githubusercontent.com/artemevsevev/TrustTunnel-Keenetic/main/install.sh | sh
+```
+
+После установки скриптов необходимо:
+1. Разместить бинарник `trusttunnel_client` в `/opt/trusttunnel_client/`
+2. Создать конфигурацию `/opt/trusttunnel_client/trusttunnel_client.toml`
+3. Сделать бинарник исполняемым: `chmod +x /opt/trusttunnel_client/trusttunnel_client`
+4. Запустить сервис: `/opt/etc/init.d/S99trusttunnel start`
+
 ## Структура файлов
 
 ```
@@ -21,33 +41,27 @@
     └── trusttunnel_client.toml     # Конфигурация
 ```
 
-## Установка
+## Ручная установка
 
-### 1. Копирование файлов
+Если вы предпочитаете ручную установку вместо скрипта:
 
 ```bash
-# Init-скрипт
-cp S99trusttunnel /opt/etc/init.d/S99trusttunnel
-chmod +x /opt/etc/init.d/S99trusttunnel
-
-# WAN-хук (создаём директорию если нет)
+# Создаём директории
+mkdir -p /opt/etc/init.d
 mkdir -p /opt/etc/ndm/wan.d
-cp 010-trusttunnel.sh /opt/etc/ndm/wan.d/010-trusttunnel.sh
-chmod +x /opt/etc/ndm/wan.d/010-trusttunnel.sh
-
-# Создаём директории для runtime файлов
 mkdir -p /opt/var/run
 mkdir -p /opt/var/log
-```
 
-### 2. Проверка клиента
+# Init-скрипт
+curl -fsSL https://raw.githubusercontent.com/artemevsevev/TrustTunnel-Keenetic/main/S99trusttunnel -o /opt/etc/init.d/S99trusttunnel
+chmod +x /opt/etc/init.d/S99trusttunnel
 
-```bash
+# WAN-хук
+curl -fsSL https://raw.githubusercontent.com/artemevsevev/TrustTunnel-Keenetic/main/010-trusttunnel.sh -o /opt/etc/ndm/wan.d/010-trusttunnel.sh
+chmod +x /opt/etc/ndm/wan.d/010-trusttunnel.sh
+
 # Убедитесь, что клиент исполняемый
 chmod +x /opt/trusttunnel_client/trusttunnel_client
-
-# Проверьте конфигурацию
-ls -la /opt/trusttunnel_client/trusttunnel_client.toml
 ```
 
 ## Использование
