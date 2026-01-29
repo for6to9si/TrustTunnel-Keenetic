@@ -35,6 +35,63 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now trusttunnel
 ```
 
+#### Настройка Let's Encrypt с автообновлением
+
+Установите Certbot:
+
+```bash
+sudo apt update
+sudo apt install -y certbot
+```
+
+Получите сертификат (замените `example.com` на ваш домен):
+
+```bash
+sudo certbot certonly --standalone -d example.com
+```
+
+Сертификаты сохранятся в:
+- `/etc/letsencrypt/live/example.com/fullchain.pem`
+- `/etc/letsencrypt/live/example.com/privkey.pem`
+
+Укажите пути в конфигурации TrustTunnel (`hosts.toml`):
+
+```toml
+[[main_hosts]]
+hostname = "example.com"
+cert_chain_path = "/etc/letsencrypt/live/example.com/fullchain.pem"
+private_key_path = "/etc/letsencrypt/live/example.com/privkey.pem"
+```
+
+Настройте автоматический перезапуск сервера после обновления сертификата:
+
+```bash
+sudo certbot reconfigure --deploy-hook "systemctl restart trusttunnel"
+```
+
+Для Certbot версии < 2.3.0 добавьте в `/etc/letsencrypt/renewal/example.com.conf`:
+
+```conf
+renew_hook = systemctl restart trusttunnel
+```
+
+Проверьте работу автообновления:
+
+```bash
+sudo certbot renew --dry-run
+```
+
+#### Экспорт конфигурации для клиента
+
+После настройки сервера экспортируйте конфигурацию для клиента:
+
+```bash
+cd /opt/trusttunnel/
+./trusttunnel_endpoint vpn.toml hosts.toml -c <имя_клиента> -a <публичный_ip_сервера>
+```
+
+Это создаст файл конфигурации, который нужно передать на клиент.
+
 ### 2. Установка клиента
 
 Скачайте клиент для архитектуры вашего роутера:
@@ -48,6 +105,17 @@ curl -fsSL https://raw.githubusercontent.com/TrustTunnel/TrustTunnelClient/refs/
 Для Keenetic обычно нужна архитектура **mipsel** или **aarch64** (зависит от модели).
 
 После скачивания скопируйте бинарник на роутер в `/opt/trusttunnel_client/`.
+
+#### Настройка клиента
+
+Сгенерируйте конфигурацию из файла, экспортированного с сервера:
+
+```bash
+cd /opt/trusttunnel_client/
+./setup_wizard --mode non-interactive \
+  --endpoint_config <путь_к_endpoint_config> \
+  --settings trusttunnel_client.toml
+```
 
 Подробная документация: https://github.com/TrustTunnel/TrustTunnel
 
