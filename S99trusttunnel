@@ -94,14 +94,13 @@ stop_watchdog() {
         fi
         rm -f "$WATCHDOG_PID_FILE"
     fi
-    # Убиваем все watchdog процессы этого скрипта
+
     pkill -f "S99trusttunnel watchdog" 2>/dev/null
 }
 
 start() {
     check_prereq
 
-    # Проверяем, не запущен ли уже watchdog
     if [ -f "$WATCHDOG_PID_FILE" ]; then
         wpid=$(cat "$WATCHDOG_PID_FILE" 2>/dev/null)
         if [ -n "$wpid" ] && kill -0 "$wpid" 2>/dev/null; then
@@ -112,7 +111,6 @@ start() {
 
     start_client
 
-    # Запуск watchdog в фоне
     echo "Starting watchdog..."
     $0 watchdog &
     disown 2>/dev/null
@@ -123,14 +121,12 @@ start() {
 stop() {
     echo "Stopping $DESC..."
 
-    # Сначала останавливаем watchdog
     stop_watchdog
 
     pid=$(get_pid)
     if [ -n "$pid" ]; then
         kill "$pid" 2>/dev/null
 
-        # Ждём завершения
         for i in 1 2 3 4 5; do
             if ! kill -0 "$pid" 2>/dev/null; then
                 break
@@ -138,7 +134,6 @@ stop() {
             sleep 1
         done
 
-        # Принудительное завершение
         if kill -0 "$pid" 2>/dev/null; then
             kill -9 "$pid" 2>/dev/null
         fi
@@ -207,7 +202,6 @@ case "$1" in
         status
         ;;
     check)
-        # Для вызова из скриптов wan-up
         if ! is_running; then
             echo "$(date): WAN reconnect detected, restarting client" >> "$LOG_FILE"
             reload
