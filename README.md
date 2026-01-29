@@ -1,6 +1,59 @@
 # Установка TrustTunnel с автозапуском на Keenetic
 
-## Быстрая установка
+## Предварительные требования
+
+Перед установкой на роутер необходимо:
+1. Установить сервер TrustTunnel на VPS
+2. Скачать клиент TrustTunnel для архитектуры вашего роутера
+
+### 1. Установка сервера на VPS
+
+На VPS с Linux (x86_64 или aarch64) выполните:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/TrustTunnel/TrustTunnel/refs/heads/master/scripts/install.sh | sh -s -
+```
+
+Сервер установится в `/opt/trusttunnel`. Запустите мастер настройки:
+
+```bash
+cd /opt/trusttunnel/
+sudo ./setup_wizard
+```
+
+Мастер запросит:
+- Адрес для прослушивания (по умолчанию `0.0.0.0:443`)
+- Учетные данные пользователя
+- Путь для хранения правил фильтрации
+- Выбор сертификата (Let's Encrypt, самоподписанный или существующий)
+
+Настройте автозапуск через systemd:
+
+```bash
+cp /opt/trusttunnel/trusttunnel.service.template /etc/systemd/system/trusttunnel.service
+sudo systemctl daemon-reload
+sudo systemctl enable --now trusttunnel
+```
+
+### 2. Установка клиента
+
+Скачайте клиент для архитектуры вашего роутера:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/TrustTunnel/TrustTunnelClient/refs/heads/master/scripts/install.sh | sh -s -
+```
+
+Поддерживаемые архитектуры: x86_64, aarch64, armv7, mips, mipsel.
+
+Для Keenetic обычно нужна архитектура **mipsel** или **aarch64** (зависит от модели).
+
+После скачивания скопируйте бинарник на роутер в `/opt/trusttunnel_client/`.
+
+Подробная документация: https://github.com/TrustTunnel/TrustTunnel
+
+---
+
+## Быстрая установка на Keenetic
 
 Выполните одну команду на роутере:
 
