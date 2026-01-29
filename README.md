@@ -10,7 +10,6 @@
    opkg install curl
    ```
 3. Установить сервер TrustTunnel на VPS
-4. Скачать клиент TrustTunnel для архитектуры вашего роутера
 
 ### 1. Установка сервера на VPS
 
@@ -75,12 +74,6 @@ private_key_path = "/etc/letsencrypt/live/example.com/privkey.pem"
 sudo certbot reconfigure --deploy-hook "systemctl restart trusttunnel"
 ```
 
-Для Certbot версии < 2.3.0 добавьте в `/etc/letsencrypt/renewal/example.com.conf`:
-
-```conf
-renew_hook = systemctl restart trusttunnel
-```
-
 Проверьте работу автообновления:
 
 ```bash
@@ -93,10 +86,10 @@ sudo certbot renew --dry-run
 
 ```bash
 cd /opt/trusttunnel/
-./trusttunnel_endpoint vpn.toml hosts.toml -c <имя_клиента> -a <публичный_ip_сервера>
+./trusttunnel_endpoint vpn.toml hosts.toml -c <имя_клиента> -a <публичный_ip_сервера> > config.toml
 ```
 
-Это создаст файл конфигурации, который нужно передать на клиент.
+Это создаст файл конфигурации `config.toml`, который нужно передать на клиент.
 
 ### 2. Установка клиента
 
@@ -110,7 +103,9 @@ curl -fsSL https://raw.githubusercontent.com/TrustTunnel/TrustTunnelClient/refs/
 
 Для Keenetic обычно нужна архитектура **mipsel** или **aarch64** (зависит от модели).
 
-После скачивания скопируйте бинарник на роутер в `/opt/trusttunnel_client/`.
+После скачивания бинарник на роутере должен быть в `/opt/trusttunnel_client/`.
+
+Сделать бинарник исполняемым: `chmod +x /opt/trusttunnel_client/trusttunnel_client`
 
 #### Настройка клиента
 
@@ -119,7 +114,7 @@ curl -fsSL https://raw.githubusercontent.com/TrustTunnel/TrustTunnelClient/refs/
 ```bash
 cd /opt/trusttunnel_client/
 ./setup_wizard --mode non-interactive \
-  --endpoint_config <путь_к_endpoint_config> \
+  --endpoint_config config.toml \
   --settings trusttunnel_client.toml
 ```
 
@@ -132,9 +127,11 @@ cd /opt/trusttunnel_client/
 address = "127.0.0.1:1080"
 ```
 
+Секции `[listener.tun]` в файле быть не должно.
+
 ---
 
-## Быстрая установка на Keenetic
+## Быстрая установка скрипта автозапуска на Keenetic
 
 Выполните одну команду на роутере:
 
@@ -148,11 +145,7 @@ curl -fsSL https://raw.githubusercontent.com/artemevsevev/TrustTunnel-Keenetic/m
 wget -qO- https://raw.githubusercontent.com/artemevsevev/TrustTunnel-Keenetic/main/install.sh | sh
 ```
 
-После установки скриптов необходимо:
-1. Разместить бинарник `trusttunnel_client` в `/opt/trusttunnel_client/`
-2. Создать конфигурацию `/opt/trusttunnel_client/trusttunnel_client.toml`
-3. Сделать бинарник исполняемым: `chmod +x /opt/trusttunnel_client/trusttunnel_client`
-4. Запустить сервис: `/opt/etc/init.d/S99trusttunnel start`
+После установки скриптов запустите сервис: `/opt/etc/init.d/S99trusttunnel start`
 
 ### Настройка прокси в веб-интерфейсе Keenetic
 
