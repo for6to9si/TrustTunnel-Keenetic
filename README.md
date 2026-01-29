@@ -123,6 +123,18 @@ cd /opt/trusttunnel_client/
 
 ## Быстрая установка на Keenetic
 
+### Предварительные требования
+
+1. Установите Entware на роутер: [Инструкция по установке Entware](https://help.keenetic.com/hc/ru/articles/360021214160-%D0%A3%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BA%D0%B0-%D1%81%D0%B8%D1%81%D1%82%D0%B5%D0%BC%D1%8B-%D0%BF%D0%B0%D0%BA%D0%B5%D1%82%D0%BE%D0%B2-%D1%80%D0%B5%D0%BF%D0%BE%D0%B7%D0%B8%D1%82%D0%BE%D1%80%D0%B8%D1%8F-Entware-%D0%BD%D0%B0-USB-%D0%BD%D0%B0%D0%BA%D0%BE%D0%BF%D0%B8%D1%82%D0%B5%D0%BB%D1%8C)
+
+2. Установите curl:
+```bash
+opkg update
+opkg install curl
+```
+
+### Установка
+
 Выполните одну команду на роутере:
 
 ```bash
@@ -140,6 +152,24 @@ wget -qO- https://raw.githubusercontent.com/artemevsevev/TrustTunnel-Keenetic/ma
 2. Создать конфигурацию `/opt/trusttunnel_client/trusttunnel_client.toml`
 3. Сделать бинарник исполняемым: `chmod +x /opt/trusttunnel_client/trusttunnel_client`
 4. Запустить сервис: `/opt/etc/init.d/S99trusttunnel start`
+
+### Настройка конфигурации клиента
+
+В файле `trusttunnel_client.toml` должен быть настроен SOCKS-прокси listener:
+
+```toml
+[listener.socks]
+address = "127.0.0.1:1080"
+```
+
+### Настройка прокси в веб-интерфейсе Keenetic
+
+После запуска клиента необходимо добавить прокси-соединение в веб-интерфейсе роутера:
+
+1. Откройте веб-интерфейс Keenetic
+2. Перейдите в раздел **Другие подключения** -> **Прокси-соединения**
+3. Добавьте новое SOCKS5 прокси-соединение с адресом `127.0.0.1` и портом `1080`
+4. Настройте маршрутизацию трафика через это соединение
 
 ## Структура файлов
 
