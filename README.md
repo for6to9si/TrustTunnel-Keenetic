@@ -71,13 +71,13 @@ private_key_path = "/etc/letsencrypt/live/example.com/privkey.pem"
 Настройте автоматический перезапуск сервера после обновления сертификата:
 
 ```bash
-sudo certbot reconfigure --deploy-hook "systemctl restart trusttunnel"
+sudo certbot reconfigure --deploy-hook "systemctl reload trusttunnel"
 ```
 
 Проверьте работу автообновления:
 
 ```bash
-sudo certbot renew --dry-run
+sudo certbot renew
 ```
 
 #### Экспорт конфигурации для клиента
@@ -86,10 +86,10 @@ sudo certbot renew --dry-run
 
 ```bash
 cd /opt/trusttunnel/
-./trusttunnel_endpoint vpn.toml hosts.toml -c <имя_клиента> -a <публичный_ip_сервера> > config.toml
+./trusttunnel_endpoint vpn.toml hosts.toml -c имя_клиента -a публичный_ip_сервера > config.toml
 ```
 
-Это создаст файл конфигурации `config.toml`, который нужно передать на клиент.
+Это создаст файл конфигурации `config.toml`, который нужно передать на роутер.
 
 ### 2. Установка клиента
 
