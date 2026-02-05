@@ -28,8 +28,8 @@ curl -fsSL "$REPO_URL/010-trusttunnel.sh" -o /opt/etc/ndm/wan.d/010-trusttunnel.
 chmod +x /opt/etc/ndm/wan.d/010-trusttunnel.sh
 
 ask_yes_no() {
-    echo "$1 (y/n)"
-    read answer
+    printf "%s (y/n) " "$1"
+    read answer < /dev/tty
     [ "$answer" = "y" ] || [ "$answer" = "Y" ]
 }
 
