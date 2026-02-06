@@ -13,6 +13,7 @@ MODE_CONF="/opt/trusttunnel_client/mode.conf"
 PID_FILE="/opt/var/run/trusttunnel.pid"
 LOG_FILE="/opt/var/log/trusttunnel.log"
 WATCHDOG_PID_FILE="/opt/var/run/trusttunnel_watchdog.pid"
+NDMC_SETUP_FLAG="/opt/var/run/trusttunnel_ndmc_setup"
 
 LOG_TAG="TrustTunnel"
 MAX_LOG_SIZE=524288  # 512KB
@@ -138,6 +139,7 @@ ensure_ndmc_tun_interface() {
     ndmc_iface_output=$(ndmc -c 'show interface' 2>&1) || return 0
     if ! echo "$ndmc_iface_output" | grep -q '^OpkgTun0'; then
         log_info "Creating ndmc interface OpkgTun0..."
+        touch "$NDMC_SETUP_FLAG"
         ndmc -c 'interface OpkgTun0'
         ndmc -c 'interface OpkgTun0 description TrustTunnel'
         ndmc -c "interface OpkgTun0 ip address $TUN_IP 255.255.255.255"
@@ -154,6 +156,7 @@ ensure_ndmc_tun_interface() {
     ndmc_policy_output=$(ndmc -c 'show ip policy' 2>&1) || return 0
     if ! echo "$ndmc_policy_output" | grep -q '^TrustTunnel'; then
         log_info "Creating ip policy TrustTunnel..."
+        [ ! -f "$NDMC_SETUP_FLAG" ] && touch "$NDMC_SETUP_FLAG"
         ndmc -c 'ip policy TrustTunnel'
         ndmc -c 'ip policy TrustTunnel description TrustTunnel'
         ndmc -c 'ip policy TrustTunnel permit global OpkgTun0'
@@ -164,7 +167,10 @@ ensure_ndmc_tun_interface() {
     if $changed; then
         ndmc -c 'system configuration save'
         log_info "ndmc configuration saved"
+        # Wait for WAN hooks (which sleep 5s) to see the flag before removing it
+        sleep 10
     fi
+    rm -f "$NDMC_SETUP_FLAG"
 }
 
 get_pid() {
