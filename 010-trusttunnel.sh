@@ -9,14 +9,7 @@ if [ -f "$MODE_CONF" ]; then
     . "$MODE_CONF"
 fi
 
-NDMC_SETUP_FLAG="/opt/var/run/trusttunnel_ndmc_setup"
-
 sleep 5
-
-if [ -f "$NDMC_SETUP_FLAG" ]; then
-    logger -t "$LOG_TAG" "ndmc interface setup in progress, skipping WAN hook"
-    exit 0
-fi
 
 logger -t "$LOG_TAG" "WAN interface up, checking TrustTunnel..."
 
