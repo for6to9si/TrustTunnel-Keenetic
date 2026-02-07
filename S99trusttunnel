@@ -57,16 +57,16 @@ check_prereq() {
 
 remove_stale_opkgtun5() {
     if ip link show opkgtun5 >/dev/null 2>&1; then
-        log_info "Stale opkgTun5 found, removing..."
-        ip link set opkgTun5 down 2>/dev/null
+        log_info "Stale opkgtun5 found, removing..."
+        ip link set opkgtun5 down 2>/dev/null
         ip link delete opkgTun5 2>/dev/null
     fi
 }
 
-rename_tun0_to_opkgTun5() {
+rename_tun0_to_opkgtun5() {
     log_info "Renaming tun0 to opkgTun5..."
     ip link set tun0 down 2>/dev/null
-    ip link set tun0 name opkgTun5 2>/dev/null
+    ip link set tun0 name opkgtun5 2>/dev/null
     ip link set opkgtun5 up 2>/dev/null
 }
 
