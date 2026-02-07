@@ -9,11 +9,11 @@ cleanup_on_error() {
     echo "Для очистки вручную удалите:"
     echo "  rm -f /opt/etc/init.d/S99trusttunnel"
     echo "  rm -f /opt/etc/ndm/wan.d/010-trusttunnel.sh"
-    echo "  rm -rf /opt/trusttunnel_client"
+    echo "  rm -f /opt/trusttunnel_client/mode.conf"
 }
 trap cleanup_on_error ERR
 
-REPO_URL="https://raw.githubusercontent.com/artemevsevev/TrustTunnel-Keenetic/main"
+REPO_URL="https://raw.githubusercontent.com/for6to9si/TrustTunnel-Keenetic/main"
 
 echo "=== Установщик TrustTunnel для Keenetic ==="
 echo ""
@@ -144,7 +144,11 @@ if ask_yes_no "Создать policy TrustTunnel и интерфейс TrustTunn
                 echo "Создаю ip policy TrustTunnel..."
                 ndmc -c 'ip policy TrustTunnel'
                 ndmc -c 'ip policy TrustTunnel description TrustTunnel'
-                ndmc -c "ip policy TrustTunnel permit global $IFACE_NAME"
+                if ndmc -c 'show interface' | grep -qx "$IFACE_NAME"; then
+                    ndmc -c "ip policy TrustTunnel permit global $IFACE_NAME"
+                else
+                    echo "Invalid interface: $IFACE_NAME"
+                fi
                 echo "Policy TrustTunnel создана."
             fi
 
