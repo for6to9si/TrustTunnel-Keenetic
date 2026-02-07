@@ -13,7 +13,7 @@ cleanup_on_error() {
 }
 trap cleanup_on_error ERR
 
-REPO_URL="https://raw.githubusercontent.com/for6to9si/TrustTunnel-Keenetic/main"
+REPO_URL="https://raw.githubusercontent.com/artemevsevev/TrustTunnel-Keenetic/main"
 
 echo "=== Установщик TrustTunnel для Keenetic ==="
 echo ""
@@ -39,7 +39,7 @@ ask_yes_no() {
 # === Mode selection ===
 echo "Выберите режим работы TrustTunnel:"
 echo "  1) SOCKS5 — проксирование через интерфейс Proxy5 (по умолчанию)"
-echo "  2) TUN    — туннель через интерфейс OpkgTun5 (только для прошивки 5.x)"
+echo "  2) TUN    — туннель через интерфейс OpkgTun0 (только для прошивки 5.x)"
 printf "Режим [1]: "
 read mode_choice < /dev/tty
 case "$mode_choice" in
@@ -110,34 +110,30 @@ if ask_yes_no "Создать policy TrustTunnel и интерфейс TrustTunn
                     ndmc -c 'interface Proxy5 proxy protocol socks5'
                     ndmc -c 'interface Proxy5 proxy upstream 127.0.0.1 1080'
                     ndmc -c 'interface Proxy5 proxy connect via ISP'
-                    ndmc -c 'interface Proxy5 ip global auto'
+                    ndmc -c 'interface Proxy5 ip global order 10'
                     ndmc -c 'interface Proxy5 security-level public'
-                    ndmc -c 'system configuration save'
                     echo "Интерфейс Proxy5 создан."
-                    echo "Конфигурация Интерфейса Proxy5 сохранена."
-
                 fi
 
                 IFACE_NAME="Proxy5"
             else
                 # --- TUN Interface ---
-                if echo "$ndmc_iface_output" | grep -q '^OpkgTun5'; then
-                    echo "Интерфейс OpkgTun5 уже существует — пропускаю."
+                if echo "$ndmc_iface_output" | grep -q '^OpkgTun0'; then
+                    echo "Интерфейс OpkgTun0 уже существует — пропускаю."
                 else
-                    echo "Создаю интерфейс OpkgTun5..."
-                    ndmc -c 'interface OpkgTun5'
-                    ndmc -c 'interface OpkgTun5 description TrustTunnel'
-                    ndmc -c "interface OpkgTun5 ip address $TUN_IP 255.255.255.255"
-                    ndmc -c 'interface OpkgTun5 ip global auto'
-                    ndmc -c 'interface OpkgTun5 ip mtu 1280'
-                    ndmc -c 'interface OpkgTun5 ip tcp adjust-mss pmtu'
-                    ndmc -c 'interface OpkgTun5 security-level public'
-                    ndmc -c 'interface OpkgTun5 up'
-                    echo "Интерфейс OpkgTun5 создан."
-                    echo "Конфигурация Интерфейса OpkgTun5 сохранена."
+                    echo "Создаю интерфейс OpkgTun0..."
+                    ndmc -c 'interface OpkgTun0'
+                    ndmc -c 'interface OpkgTun0 description TrustTunnel'
+                    ndmc -c "interface OpkgTun0 ip address $TUN_IP 255.255.255.255"
+                    ndmc -c 'interface OpkgTun0 ip global order 10'
+                    ndmc -c 'interface OpkgTun0 ip mtu 1280'
+                    ndmc -c 'interface OpkgTun0 ip tcp adjust-mss pmtu'
+                    ndmc -c 'interface OpkgTun0 security-level public'
+                    ndmc -c 'interface OpkgTun0 up'
+                    echo "Интерфейс OpkgTun0 создан."
                 fi
 
-                IFACE_NAME="OpkgTun5"
+                IFACE_NAME="OpkgTun0"
             fi
 
             # --- Policy ---
@@ -148,11 +144,7 @@ if ask_yes_no "Создать policy TrustTunnel и интерфейс TrustTunn
                 echo "Создаю ip policy TrustTunnel..."
                 ndmc -c 'ip policy TrustTunnel'
                 ndmc -c 'ip policy TrustTunnel description TrustTunnel'
-                if ndmc -c 'show interface' | grep -q "^[[:space:]]*id:[[:space:]]*$IFACE_NAME$"; then
-                    ndmc -c "$(printf 'ip policy TrustTunnel permit global %s' "$IFACE_NAME")"
-                else
-                    echo "Invalid interface: $IFACE_NAME"
-                fi
+                ndmc -c "ip policy TrustTunnel permit global $IFACE_NAME"
                 echo "Policy TrustTunnel создана."
             fi
 
