@@ -144,8 +144,8 @@ if ask_yes_no "Создать policy TrustTunnel и интерфейс TrustTunn
                 echo "Создаю ip policy TrustTunnel..."
                 ndmc -c 'ip policy TrustTunnel'
                 ndmc -c 'ip policy TrustTunnel description TrustTunnel'
-                if ndmc -c 'show interface' | grep -qx "$IFACE_NAME"; then
-                    ndmc -c "ip policy TrustTunnel permit global $IFACE_NAME"
+                if ndmc -c 'show interface' | grep -q "^[[:space:]]*id:[[:space:]]*$IFACE_NAME$"; then
+                    ndmc -c "$(printf 'ip policy TrustTunnel permit global %s' "$IFACE_NAME")"
                 else
                     echo "Invalid interface: $IFACE_NAME"
                 fi
