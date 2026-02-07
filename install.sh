@@ -112,7 +112,10 @@ if ask_yes_no "Создать policy TrustTunnel и интерфейс TrustTunn
                     ndmc -c 'interface Proxy5 proxy connect via ISP'
                     ndmc -c 'interface Proxy5 ip global auto'
                     ndmc -c 'interface Proxy5 security-level public'
+                    ndmc -c 'system configuration save'
                     echo "Интерфейс Proxy5 создан."
+                    echo "Конфигурация Интерфейса Proxy5 сохранена."
+
                 fi
 
                 IFACE_NAME="Proxy5"
@@ -131,6 +134,7 @@ if ask_yes_no "Создать policy TrustTunnel и интерфейс TrustTunn
                     ndmc -c 'interface OpkgTun5 security-level public'
                     ndmc -c 'interface OpkgTun5 up'
                     echo "Интерфейс OpkgTun5 создан."
+                    echo "Конфигурация Интерфейса OpkgTun5 сохранена."
                 fi
 
                 IFACE_NAME="OpkgTun5"
